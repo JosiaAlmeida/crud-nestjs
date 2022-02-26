@@ -8,4 +8,4 @@ import { CoursesController } from './courses/courses.controller';
   controllers: [AppController, CoursesController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

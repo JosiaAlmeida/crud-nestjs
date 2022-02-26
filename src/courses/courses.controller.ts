@@ -1,18 +1,27 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   Param,
+  Patch,
   Post,
   Res,
 } from '@nestjs/common';
 
+interface FullName {
+  nome: string;
+  apelido: string;
+}
+
 @Controller('courses')
 export class CoursesController {
+  listUser: FullName[] = [];
+
   @Get()
   FindAll() {
-    return 'Cursos';
+    return this.listUser.map((item) => item);
   }
   @Get('id')
   FindList() {
@@ -29,11 +38,24 @@ export class CoursesController {
 
   @Post()
   @HttpCode(201)
-  create(@Body() body) {
+  create(@Body() body: FullName) {
+    this.listUser.push(body);
     return body;
   }
-  // @Post()
-  // createPost(@Body('name') name: string) {
-  //     return name
-  // }
+
+  @Patch(':id')
+  update(@Param(':id') id: string, @Body() body: FullName) {
+    const data = this.listUser.filter(
+      (item, i) => i.toString() == id && item,
+    )[0];
+
+    return this.listUser.filter((item, i) => {
+      if (i.toString() == id) item.nome.replace(data.nome, body.nome);
+    });
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id, @Res() res) {
+    return res.status(200).json({ message: 'eliminado com sucesso ' + id });
+  }
 }

@@ -9,19 +9,15 @@ import {
   Post,
   Res,
 } from '@nestjs/common';
-
-interface FullName {
-  nome: string;
-  apelido: string;
-}
+import { FullName, CoursesService } from './courses.service';
 
 @Controller('courses')
 export class CoursesController {
-  listUser: FullName[] = [];
+  constructor(readonly coursesService: CoursesService) {}
 
   @Get()
   FindAll() {
-    return this.listUser.map((item) => item);
+    return this.coursesService.findAll();
   }
   @Get('id')
   FindList() {
@@ -33,29 +29,24 @@ export class CoursesController {
   findOne(@Param('id') id: string, @Res() response) {
     if (id == '1')
       return response.status(401).json({ message: 'Nao autorizado' });
-    response.status(200).json({ message: 'Curso numero ' + id });
+    const user = this.coursesService.findUser(id);
+    return response.status(200).json(user);
   }
 
   @Post()
   @HttpCode(201)
   create(@Body() body: FullName) {
-    this.listUser.push(body);
-    return body;
+    return this.coursesService.created(body);
   }
 
   @Patch(':id')
   update(@Param(':id') id: string, @Body() body: FullName) {
-    const data = this.listUser.filter(
-      (item, i) => i.toString() == id && item,
-    )[0];
-
-    return this.listUser.filter((item, i) => {
-      if (i.toString() == id) item.nome.replace(data.nome, body.nome);
-    });
+    return this.coursesService.updated(id, body);
   }
 
   @Delete(':id')
   remove(@Param('id') id, @Res() res) {
-    return res.status(200).json({ message: 'eliminado com sucesso ' + id });
+    this.coursesService.deleted(id);
+    return res.status(204);
   }
 }
